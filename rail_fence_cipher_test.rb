@@ -37,7 +37,7 @@ class RailFenceCipherTest < Minitest::Test
   end
 
   def test_decode_with_empty_string
-    # skip
+    skip
     assert_equal '', RailFenceCipher.decode('', 4)
   end
 

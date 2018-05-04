@@ -1,43 +1,28 @@
 class RailFenceCipher
   def self.encode(message, rails_count)
-    return message if rails_count == 1
-    down = true
-    message.chars.
-      group_by.
-      with_index(1) do |_character, index|
-      if down
-        down = false if flip(index, rails_count)
-        if down
-          index % (rails_count - 1)
-        else
-          rails_count - 1
-        end
-      else
-        down = true if flip(index, rails_count)
-        if down
-          2
-        else
-          rails_count + 1 - (index % (rails_count - 1))
-        end
-      end
-    end.
-      values.
+    rail_structure(message, rails_count).
+      sort_by(&:rail).
+      map { |rail_position| message[rail_position.index - 1] }.
       join
   end
 
-  def self.flip(index, rails_count)
-    (index % (rails_count - 1)).zero?
+  def self.decode(message, rails_count)
+    rail_structure(message, rails_count).
+      sort_by(&:rail).
+      each_with_index { |rail_position, index| rail_position.character = message[index] }.
+      sort_by(&:index).
+      map(&:character).
+      join
   end
+
+  def self.rail_structure(message, rails_count)
+    rail_position = Struct.new(:index, :rail, :character)
+    (1.upto(rails_count).to_a + (rails_count - 1).downto(2).to_a).
+      cycle.
+      take(message.length).
+      each_with_object([]).
+      with_index(1) { |(rail, output), index| output << rail_position.new(index, rail) }
+  end
+
+  VERSION = 1
 end
-# 'ESXIEECSR', RailFenceCipher.encode('EXERCISES' 4 rails
-# E           S
-#   X       I   E
-#     E   C       S
-#       R
-
-
-# 1,2,0
-# 4
-
-# 3,2,1
-# 4
